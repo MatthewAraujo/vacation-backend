@@ -1,0 +1,17 @@
+version: '3'
+services:
+
+  db:
+    image: mysql:8.0
+    healthcheck:
+      test: "exit 0"
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: mypassword
+      MYSQL_DATABASE: ecom
+
+volumes:
+  db_data:
