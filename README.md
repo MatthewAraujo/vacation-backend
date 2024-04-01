@@ -16,7 +16,7 @@ Welcome to the Vacation Backend Application! This application allows users to sh
 
 ### Devops
   - [ ] CI/CD 
-    - [ ] Tests for pull request
+    - [X] Tests for pull request
     - [ ] Continuous Integration setup
     - [ ] Continuous Deployment setup
   - [ ] Monitoring setup
