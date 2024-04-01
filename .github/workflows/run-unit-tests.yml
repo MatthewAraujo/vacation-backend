@@ -1,18 +1,20 @@
-name:  Run Unit Tests
+on:
+  push:
+    branches:
+      - main
 
-on: [push]
-
-jobs: 
+jobs:
   run-unit-tests:
-    name: Run Unit Tests
     runs-on: ubuntu-latest
 
-    steps: 
+    steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      
-      - uses: actions/setup-go@v4
-        with: 
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
           go-version: '1.22.1'
-    - name: Run Unit Tests
-      run: make test
+
+      - name: Run Unit Tests
+        run: make test
