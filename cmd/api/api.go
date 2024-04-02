@@ -26,7 +26,8 @@ func (s *APIServer) Run() error {
 	// if the api changes in the future we can just change the version here, and the old version will still be available
 	subrouter := router.PathPrefix("/api/v1").Subrouter()
 
-	userHandler := user.NewHandler()
+	userStore := user.NewStore(s.db)
+	userHandler := user.NewHandler(userStore)
 	userHandler.RegisterRoutes(subrouter)
 
 	log.Println("Starting server on", s.addr)
