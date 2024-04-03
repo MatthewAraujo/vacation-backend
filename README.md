@@ -10,30 +10,33 @@ Welcome to the Vacation Backend Application! This application allows users to sh
 ## TODO
 
 ### DB
-  - [x] Create Docker DB
-  - [ ] Create Schema
-  - [ ] Implement Database Migrations
+
+- [x] Create Docker DB
+- [ ] Create Schema
+- [ ] Implement Database Migrations
 
 ### Devops
-  - [ ] CI/CD 
-    - [X] Tests for pull request
-    - [ ] Continuous Integration setup
-    - [ ] Continuous Deployment setup
-  - [ ] Monitoring setup
-  - [ ] Logging setup
+
+- [ ] CI/CD
+  - [x] Tests for pull request
+  - [ ] Continuous Integration setup
+  - [ ] Continuous Deployment setup
+- [ ] Monitoring setup
+- [ ] Logging setup
 
 ## API
-  - [ ] Implement user routers.
-    - [ ] Create User
-    - [ ] Update User
-    - [ ] Delete User
-  - [ ] Implement authentication
-    - [ ] User login
-    - [ ] User registration
-    - [ ] JWT token generation and validation
-  - [ ] Implement post routers
-    - [ ] Create Post
-    - [ ] Update Post
-    - [ ] Delete Post
-  - [ ] Implement photo uploading
-  - [ ] Implement photo retrieval
+
+- [ ] Implement user routers.
+  - [x] Create User
+  - [ ] Update User
+  - [ ] Delete User
+- [ ] Implement authentication
+  - [x] User login
+  - [x] User registration
+  - [ ] JWT token generation and validation
+- [ ] Implement post routers
+  - [ ] Create Post
+  - [ ] Update Post
+  - [ ] Delete Post
+- [ ] Implement photo uploading
+- [ ] Implement photo retrieval
