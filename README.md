@@ -12,8 +12,8 @@ Welcome to the Vacation Backend Application! This application allows users to sh
 ### DB
 
 - [x] Create Docker DB
+- [X] Implement Database Migrations
 - [ ] Create Schema
-- [ ] Implement Database Migrations
 
 ### Devops
 
