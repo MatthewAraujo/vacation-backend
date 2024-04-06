@@ -7,13 +7,17 @@ Welcome to the Vacation Backend Application! This application allows users to sh
 - **Photo Sharing**: Users can upload and share photos of their vacation experiences.
 - **Discover**: Users can explore the most beautiful and travel-friendly places shared by other users.
 
+## Database scheema
+
+![Schema](schema.png)
+
 ## TODO
 
 ### DB
 
 - [x] Create Docker DB
-- [X] Implement Database Migrations
-- [ ] Create Schema
+- [x] Implement Database Migrations
+- [x] Create Schema
 
 ### Devops
 
