@@ -27,8 +27,31 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 }
 
 func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
-	// get users from the database
-	// return users as json
+	var payload types.LoginUserPayload
+
+	if err := utils.ParseJSON(r, &payload); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	// validate the payload
+	if err := utils.Validate.Struct(payload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("validation error: %s", errors))
+		return
+	}
+
+	u, err := h.store.GetUserByEmail(payload.Email)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user not found, user or password incorrect"))
+		return
+	}
+
+	if !auth.ComparePasswords(u.Password, payload.Password) {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user not found, user or password incorrect"))
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, map[string]string{"token": ""})
 }
 
 func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
@@ -39,6 +62,13 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	// validate the payload
+	if err := utils.Validate.Struct(payload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("validation error: %s", errors))
+		return
+	}
+
 	// check if user already exists
 	_, err := h.store.GetUserByEmail(payload.Email)
 	if err == nil {
@@ -52,18 +82,10 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// validate the payload
-	if err := utils.Validate.Struct(payload); err != nil {
-		errors := err.(validator.ValidationErrors)
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("validation error: %s", errors))
-		return
-	}
-
 	err = h.store.CreateUser(&types.User{
-		FirstName: payload.FirstName,
-		LastName:  payload.LastName,
-		Email:     payload.Email,
-		Password:  hashedPassword,
+		Username: payload.Username,
+		Email:    payload.Email,
+		Password: hashedPassword,
 	})
 
 	if err != nil {
