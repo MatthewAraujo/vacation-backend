@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS photos( 
+    `photoID` CHAR(36) PRIMARY KEY,
+    `postID` CHAR(36) NOT NULL,
+	`location` VARCHAR(255) NOT NULL,
+    `url_photo` NOT NULL,
+    `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (postID) REFERENCES posts(postID)
+)
