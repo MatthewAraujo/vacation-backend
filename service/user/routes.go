@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	configs "github.com/MatthewAraujo/vacation-backend/config"
 	"github.com/MatthewAraujo/vacation-backend/service/auth"
 	"github.com/MatthewAraujo/vacation-backend/types"
 	"github.com/MatthewAraujo/vacation-backend/utils"
@@ -46,12 +47,18 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !auth.ComparePasswords(u.Password, payload.Password) {
+	if !auth.ComparePasswords(u.Password, []byte(payload.Password)) {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user not found, user or password incorrect"))
 		return
 	}
+	secret := []byte(configs.Envs.JWTSecret)
+	token, err := auth.CreateJWT(secret, u.ID.String())
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]string{"token": ""})
+	utils.WriteJSON(w, http.StatusOK, map[string]string{"token": token})
 }
 
 func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
@@ -76,7 +83,7 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hashedPassword, err := auth.HasPassword(payload.Password)
+	hashedPassword, err := auth.HashPassword(payload.Password)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return
