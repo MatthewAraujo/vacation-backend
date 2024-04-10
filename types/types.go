@@ -6,10 +6,18 @@ import (
 	"github.com/google/uuid"
 )
 
+type Photo struct {
+	ID        uuid.UUID `json:"id"`
+	PostID    uuid.UUID `json:"post_id"`
+	PhotoURL  string    `json:"photo_url"`
+	Location  string    `json:"location"`
+	CreatedAt time.Time `json:"created_at"`
+}
 type Post struct {
 	ID          uuid.UUID `json:"id"`
 	UserID      uuid.UUID `json:"user_id"`
 	Description string    `json:"description"`
+	Photos      []*Photo  `json:"photos"`
 	CreatedAt   time.Time `json:"created_at"`
 }
 type PostStore interface {
@@ -20,6 +28,7 @@ type PostStore interface {
 type CreatePostPayload struct {
 	UserID      uuid.UUID `json:"user_id"`
 	Description string    `json:"description" validate:"required,min=3,max=100"`
+	Photo       string    `json:"photo" validate:"required"`
 }
 
 type UserStore interface {
