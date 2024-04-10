@@ -6,6 +6,22 @@ import (
 	"github.com/google/uuid"
 )
 
+type Post struct {
+	ID          uuid.UUID `json:"id"`
+	UserID      uuid.UUID `json:"user_id"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"created_at"`
+}
+type PostStore interface {
+	GetPosts() ([]*Post, error)
+	CreatePost(CreatePostPayload) error
+}
+
+type CreatePostPayload struct {
+	UserID      uuid.UUID `json:"user_id"`
+	Description string    `json:"description" validate:"required,min=3,max=100"`
+}
+
 type UserStore interface {
 	GetUserByEmail(email string) (*User, error)
 	GetUserByID(id uuid.UUID) (*User, error)
