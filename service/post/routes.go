@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/MatthewAraujo/vacation-backend/service/auth"
 	"github.com/MatthewAraujo/vacation-backend/types"
 	"github.com/MatthewAraujo/vacation-backend/utils"
 	"github.com/go-playground/validator"
@@ -24,7 +25,7 @@ func NewHandler(store types.PostStore, userStore types.UserStore) *Handler {
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/posts", h.handleGetPosts).Methods(http.MethodGet)
-	router.HandleFunc("/posts", h.handleCreatePost).Methods(http.MethodPost)
+	router.HandleFunc("/posts", auth.WithJWTAuth(h.handleCreatePost, h.userStore)).Methods(http.MethodPost)
 }
 
 func (h *Handler) handleGetPosts(w http.ResponseWriter, r *http.Request) {
