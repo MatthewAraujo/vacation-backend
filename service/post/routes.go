@@ -3,13 +3,14 @@ package post
 import (
 	"fmt"
 	"io"
-	"mime/multipart"
+	"log"
 	"net/http"
 	"os"
 
 	"github.com/MatthewAraujo/vacation-backend/types"
 	"github.com/MatthewAraujo/vacation-backend/utils"
 	"github.com/go-playground/validator"
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
 
@@ -42,10 +43,19 @@ func (h *Handler) handleGetPosts(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 	var post types.CreatePostPayload
-	if err := utils.ParseJSON(r, &post); err != nil {
+
+	_, err := utils.ParseMultipartForm(r)
+	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
+
+	post = types.CreatePostPayload{
+		Description: r.FormValue("description"),
+		UserID:      uuid.MustParse(r.FormValue("user_id")),
+	}
+
+	// validation of the payload
 	if err := utils.Validate.Struct(&post); err != nil {
 		errors := err.(validator.ValidationErrors)
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload: %v", errors))
@@ -57,16 +67,8 @@ func (h *Handler) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user not found"))
 		return
 	}
-	// the FormFile function takes in the POST input id file
-	file, header, err := r.FormFile("file")
 
-	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("file not found"))
-	}
-
-	defer file.Close()
-
-	_, err = FileUploadHandler(&file, header, w)
+	_, err = FileUploadHandler(w, r)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return
@@ -82,8 +84,27 @@ func (h *Handler) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusCreated, post)
 }
 
-func FileUploadHandler(file *multipart.File, header *multipart.FileHeader, w http.ResponseWriter) (string, error) {
-	path := "/tmp/" + header.Filename
+func FileUploadHandler(w http.ResponseWriter, r *http.Request) (string, error) {
+	// the FormFile function takes in the POST input id file
+	file, header, err := r.FormFile("photo")
+	log.Println(header.Filename)
+
+	if err != nil {
+		fmt.Fprintln(w, err)
+		return "", err
+	}
+
+	defer file.Close()
+
+	folderPath, err := os.Getwd()
+	if err != nil {
+		fmt.Println("Erro ao obter o diretório de trabalho atual:", err)
+		return "", err
+	}
+
+	folderPath += "/tmp/"
+
+	path := folderPath + header.Filename
 	out, err := os.Create(path)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
@@ -92,7 +113,7 @@ func FileUploadHandler(file *multipart.File, header *multipart.FileHeader, w htt
 	defer out.Close()
 
 	// write the content from POST to the file
-	_, err = io.Copy(out, *file)
+	_, err = io.Copy(out, file)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 	}

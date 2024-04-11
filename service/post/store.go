@@ -2,6 +2,8 @@ package post
 
 import (
 	"database/sql"
+	"fmt"
+	"os"
 
 	"github.com/MatthewAraujo/vacation-backend/types"
 	"github.com/google/uuid"
@@ -16,7 +18,7 @@ func NewStore(db *sql.DB) *Store {
 }
 
 func (s *Store) GetPosts() ([]*types.Post, error) {
-	query := "SELECT p.*, ph.url_photo, ph.location FROM posts p JOIN photos ph ON p.postID = ph.postID"
+	query := "SELECT p.*, ph.photoID, ph.postID,ph.url_photo, ph.location FROM posts p JOIN photos ph ON p.postID = ph.postID"
 	rows, err := s.db.Query(query)
 	if err != nil {
 		return nil, err
@@ -41,7 +43,7 @@ func (s *Store) CreatePost(post types.CreatePostPayload) error {
 	if err != nil {
 		return err
 	}
-	photoLocation := "ucrain"
+	photoLocation := getFileLocation()
 	photoURL := "https://www.google.com"
 
 	_, err = s.db.Exec("INSERT INTO photos(photoID,postID,url_photo,location) VALUES (?,?, ?, ?)", uuid.New(), postID, photoURL, photoLocation)
@@ -51,22 +53,48 @@ func (s *Store) CreatePost(post types.CreatePostPayload) error {
 	return nil
 }
 
-func scanRowIntoPost(rows *sql.Rows) (*types.Post, error) {
-	p := new(types.Post)
-	err := rows.Scan(&p.ID, &p.UserID, &p.CreatedAt, &p.Description)
-	if err != nil {
-		return nil, err
-	}
-	return p, nil
-}
-
 func scanRowIntoPostWithPhotos(rows *sql.Rows) (*types.Post, error) {
 	p := new(types.Post)
 	ph := new(types.Photo)
-	err := rows.Scan(&p.ID, &p.UserID, &p.CreatedAt, &p.Description, &ph.PhotoURL, &ph.Location)
+	err := rows.Scan(&p.ID, &p.UserID, &p.CreatedAt, &p.Description, &ph.ID, &ph.PostID, &ph.PhotoURL, &ph.Location)
 	if err != nil {
 		return nil, err
 	}
 	p.Photos = append(p.Photos, ph)
 	return p, nil
+}
+
+func getFileLocation() string {
+	folderPath, err := os.Getwd()
+	if err != nil {
+		fmt.Println("Erro ao obter o diretório de trabalho atual:", err)
+		return ""
+	}
+	folderPath += "/tmp"
+
+	// Abrir a pasta
+	folder, err := os.Open(folderPath)
+	if err != nil {
+		fmt.Println("Erro ao abrir a pasta:", err)
+		return ""
+	}
+	defer folder.Close()
+
+	// Ler o conteúdo da pasta
+	files, err := folder.Readdir(1) // Obter apenas um arquivo
+	if err != nil {
+		fmt.Println("Erro ao ler conteúdo da pasta:", err)
+		return ""
+	}
+
+	// Verificar se há arquivos na pasta
+	if len(files) == 0 {
+		fmt.Println("Pasta vazia.")
+		return ""
+	}
+
+	// Obter o nome do primeiro arquivo
+	firstName := files[0].Name()
+
+	return firstName // Add this line to fix the "missing return" error
 }
