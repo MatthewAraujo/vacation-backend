@@ -2,7 +2,10 @@ package post
 
 import (
 	"fmt"
+	"io"
+	"mime/multipart"
 	"net/http"
+	"os"
 
 	"github.com/MatthewAraujo/vacation-backend/types"
 	"github.com/MatthewAraujo/vacation-backend/utils"
@@ -54,6 +57,20 @@ func (h *Handler) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user not found"))
 		return
 	}
+	// the FormFile function takes in the POST input id file
+	file, header, err := r.FormFile("file")
+
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("file not found"))
+	}
+
+	defer file.Close()
+
+	_, err = FileUploadHandler(&file, header, w)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
 
 	post.UserID = user.ID
 	err = h.store.CreatePost(post)
@@ -63,4 +80,22 @@ func (h *Handler) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.WriteJSON(w, http.StatusCreated, post)
+}
+
+func FileUploadHandler(file *multipart.File, header *multipart.FileHeader, w http.ResponseWriter) (string, error) {
+	path := "/tmp/" + header.Filename
+	out, err := os.Create(path)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+	}
+
+	defer out.Close()
+
+	// write the content from POST to the file
+	_, err = io.Copy(out, *file)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+	}
+
+	return path, nil
 }

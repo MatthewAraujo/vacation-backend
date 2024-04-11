@@ -1,6 +1,7 @@
 package types
 
 import (
+	"mime/multipart"
 	"time"
 
 	"github.com/google/uuid"
@@ -26,9 +27,9 @@ type PostStore interface {
 }
 
 type CreatePostPayload struct {
-	UserID      uuid.UUID `json:"user_id"`
-	Description string    `json:"description" validate:"required,min=3,max=100"`
-	Photo       string    `json:"photo" validate:"required"`
+	UserID      uuid.UUID      `json:"user_id"`
+	Description string         `json:"description" validate:"required,min=3,max=100"`
+	Photo       multipart.File `json:"photo" validate:"required"`
 }
 
 type UserStore interface {
