@@ -59,6 +59,7 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.WriteJSON(w, http.StatusOK, map[string]string{"token": token})
+	utils.Logger(http.StatusOK, r)
 }
 
 func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
@@ -101,4 +102,5 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.WriteJSON(w, http.StatusCreated, map[string]string{"message": "user created"})
+	utils.Logger(http.StatusCreated, r)
 }

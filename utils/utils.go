@@ -3,7 +3,10 @@ package utils
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"net"
 	"net/http"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -40,4 +43,11 @@ func WriteJSON(w http.ResponseWriter, status int, v any) error {
 func WriteError(w http.ResponseWriter, status int, err error) {
 	WriteJSON(w, status, map[string]string{"error": err.Error()})
 
+}
+func Logger(status int, r *http.Request) {
+	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
+	timestamp := time.Now().Format("02/01/2006 15:04:05")
+	method := r.Method
+	route := r.URL.Path
+	fmt.Printf("%s [%s] %s %s %d\n", ip, timestamp, method, route, status)
 }

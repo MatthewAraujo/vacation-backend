@@ -39,9 +39,11 @@ func (h *Handler) handleDeletePost(w http.ResponseWriter, r *http.Request) {
 	err := h.store.DeletePost(postID)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
+		utils.Logger(http.StatusInternalServerError, r)
 		return
 	}
 	utils.WriteJSON(w, http.StatusNoContent, "Deleted")
+	utils.Logger(http.StatusNoContent, r)
 }
 
 func (h *Handler) handleEditPost(w http.ResponseWriter, r *http.Request) {
@@ -50,6 +52,7 @@ func (h *Handler) handleEditPost(w http.ResponseWriter, r *http.Request) {
 
 	if err := utils.ParseJSON(r, &post); err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
+		utils.Logger(http.StatusBadRequest, r)
 		return
 	}
 
@@ -57,11 +60,13 @@ func (h *Handler) handleEditPost(w http.ResponseWriter, r *http.Request) {
 	editedPost, err := h.store.EditPost(postID, post)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
+		utils.Logger(http.StatusInternalServerError, r)
 		return
 	}
 
 	post.Description = editedPost.Description
 	utils.WriteJSON(w, http.StatusNoContent, post)
+	utils.Logger(http.StatusNoContent, r)
 }
 
 func (h *Handler) handleGetPost(w http.ResponseWriter, r *http.Request) {
@@ -69,19 +74,22 @@ func (h *Handler) handleGetPost(w http.ResponseWriter, r *http.Request) {
 	post, err := h.store.GetPostByID(postID)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
+		utils.Logger(http.StatusInternalServerError, r)
 		return
 	}
 	utils.WriteJSON(w, http.StatusOK, post)
-
+	utils.Logger(http.StatusOK, r)
 }
 
 func (h *Handler) handleGetPosts(w http.ResponseWriter, r *http.Request) {
 	posts, err := h.store.GetPosts()
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
+		utils.Logger(http.StatusInternalServerError, r)
 		return
 	}
 	utils.WriteJSON(w, http.StatusOK, posts)
+	utils.Logger(http.StatusOK, r)
 }
 
 func (h *Handler) handleCreatePost(w http.ResponseWriter, r *http.Request) {
@@ -125,6 +133,7 @@ func (h *Handler) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.WriteJSON(w, http.StatusCreated, post)
+	utils.Logger(http.StatusCreated, r)
 }
 
 func FileUploadHandler(w http.ResponseWriter, r *http.Request) (string, error) {
