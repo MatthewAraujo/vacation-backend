@@ -2,8 +2,7 @@ package post
 
 import (
 	"database/sql"
-	"fmt"
-	"os"
+	"log"
 
 	"github.com/MatthewAraujo/vacation-backend/types"
 	"github.com/google/uuid"
@@ -69,8 +68,15 @@ func (s *Store) CreatePost(post types.CreatePostPayload) error {
 	if err != nil {
 		return err
 	}
-	photoLocation := getFileLocation()
-	photoURL := "https://www.google.com"
+	pi, err := GetPhotoInfos()
+	if err != nil {
+		return err
+	}
+
+	log.Println(pi)
+
+	photoURL := pi.PhotoURL
+	photoLocation := pi.Location
 
 	_, err = s.db.Exec("INSERT INTO photos(photoID,postID,url_photo,location) VALUES (?,?, ?, ?)", uuid.New(), postID, photoURL, photoLocation)
 	if err != nil {
@@ -99,39 +105,4 @@ func scanRowIntoPostWithPhotos(rows *sql.Rows) (*types.Post, error) {
 	}
 	p.Photos = append(p.Photos, ph)
 	return p, nil
-}
-
-func getFileLocation() string {
-	folderPath, err := os.Getwd()
-	if err != nil {
-		fmt.Println("Erro ao obter o diretório de trabalho atual:", err)
-		return ""
-	}
-	folderPath += "/tmp"
-
-	// Abrir a pasta
-	folder, err := os.Open(folderPath)
-	if err != nil {
-		fmt.Println("Erro ao abrir a pasta:", err)
-		return ""
-	}
-	defer folder.Close()
-
-	// Ler o conteúdo da pasta
-	files, err := folder.Readdir(1) // Obter apenas um arquivo
-	if err != nil {
-		fmt.Println("Erro ao ler conteúdo da pasta:", err)
-		return ""
-	}
-
-	// Verificar se há arquivos na pasta
-	if len(files) == 0 {
-		fmt.Println("Pasta vazia.")
-		return ""
-	}
-
-	// Obter o nome do primeiro arquivo
-	firstName := files[0].Name()
-
-	return firstName // Add this line to fix the "missing return" error
 }

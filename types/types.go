@@ -13,6 +13,12 @@ type Photo struct {
 	Location  string    `json:"location"`
 	CreatedAt time.Time `json:"created_at"`
 }
+
+type PhotoInfo struct {
+	PhotoURL string
+	Location string
+}
+
 type Post struct {
 	ID          uuid.UUID `json:"id"`
 	UserID      uuid.UUID `json:"user_id"`
