@@ -23,6 +23,9 @@ type Post struct {
 type PostStore interface {
 	GetPosts() ([]*Post, error)
 	CreatePost(CreatePostPayload) error
+	GetPostByID(postID string) (*Post, error)
+	EditPost(postID string, post EditPostPayload) (*Post, error)
+	DeletePost(postID string) error
 }
 
 type CreatePostPayload struct {
@@ -30,6 +33,10 @@ type CreatePostPayload struct {
 	Description string    `json:"description" validate:"required,min=3,max=100"`
 	// Photo       multipart.FileHeader
 	// `json:"photo" validate:"required"`
+}
+
+type EditPostPayload struct {
+	Description string `json:"description" validate:"required,min=3,max=100"`
 }
 
 type UserStore interface {

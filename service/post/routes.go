@@ -3,7 +3,6 @@ package post
 import (
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 
@@ -30,6 +29,50 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/posts", h.handleGetPosts).Methods(http.MethodGet)
 	// router.HandleFunc("/posts", auth.WithJWTAuth(h.handleCreatePost, h.userStore)).Methods(http.MethodPost)
 	router.HandleFunc("/posts", h.handleCreatePost).Methods(http.MethodPost)
+	router.HandleFunc("/posts/{id}", h.handleGetPost).Methods(http.MethodGet)
+	router.HandleFunc("/posts/{id}", h.handleEditPost).Methods(http.MethodPatch)
+	router.HandleFunc("/posts/{id}", h.handleDeletePost).Methods(http.MethodDelete)
+}
+
+func (h *Handler) handleDeletePost(w http.ResponseWriter, r *http.Request) {
+	postID := mux.Vars(r)["id"]
+	err := h.store.DeletePost(postID)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+	utils.WriteJSON(w, http.StatusNoContent, "Deleted")
+}
+
+func (h *Handler) handleEditPost(w http.ResponseWriter, r *http.Request) {
+	postID := mux.Vars(r)["id"]
+	var post types.EditPostPayload
+
+	if err := utils.ParseJSON(r, &post); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validation of the payload
+	editedPost, err := h.store.EditPost(postID, post)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	post.Description = editedPost.Description
+	utils.WriteJSON(w, http.StatusNoContent, post)
+}
+
+func (h *Handler) handleGetPost(w http.ResponseWriter, r *http.Request) {
+	postID := mux.Vars(r)["id"]
+	post, err := h.store.GetPostByID(postID)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+	utils.WriteJSON(w, http.StatusOK, post)
+
 }
 
 func (h *Handler) handleGetPosts(w http.ResponseWriter, r *http.Request) {
@@ -87,7 +130,6 @@ func (h *Handler) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 func FileUploadHandler(w http.ResponseWriter, r *http.Request) (string, error) {
 	// the FormFile function takes in the POST input id file
 	file, header, err := r.FormFile("photo")
-	log.Println(header.Filename)
 
 	if err != nil {
 		fmt.Fprintln(w, err)
@@ -112,7 +154,6 @@ func FileUploadHandler(w http.ResponseWriter, r *http.Request) (string, error) {
 
 	defer out.Close()
 
-	// write the content from POST to the file
 	_, err = io.Copy(out, file)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
