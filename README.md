@@ -26,21 +26,21 @@ Welcome to the Vacation Backend Application! This application allows users to sh
   - [ ] Continuous Integration setup
   - [ ] Continuous Deployment setup
 - [ ] Monitoring setup
-- [ ] Logging setup
+- [x] Logging setup
 
 ## API
 
 - [ ] Implement user routers.
   - [x] Create User
-  - [ ] Update User
-  - [ ] Delete User
+  - [x] Update User
+  - [x] Delete User
 - [ ] Implement authentication
   - [x] User login
   - [x] User registration
   - [ ] JWT token generation and validation
-- [ ] Implement post routers
-  - [ ] Create Post
-  - [ ] Update Post
-  - [ ] Delete Post
-- [ ] Implement photo uploading
-- [ ] Implement photo retrieval
+- [x] Implement post routers
+  - [x] Create Post
+  - [x] Update Post
+  - [x] Delete Post
+- [x] Implement photo uploading
+- [x] Implement photo retrieval
