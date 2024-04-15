@@ -74,5 +74,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("S : %s\nW: %s\n", location.latitude, location.longitude)
+	latitude := parseCoord(location.latitude)
+	longitude := parseCoord(location.longitude)
+
+	lat := convertCoord(latitude, "S")
+	lon := convertCoord(longitude, "W")
 }

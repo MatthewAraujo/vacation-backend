@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/MatthewAraujo/vacation-backend/types"
 	"github.com/rwcarlsen/goexif/exif"
@@ -57,7 +59,7 @@ func GetPhotoInfos() (types.PhotoInfo, error) {
 	}, nil
 }
 
-func getLocation(fp string) string {
+func getLocation(fp string) types.Location {
 	fname := fp
 
 	f, err := os.Open(fname)
@@ -77,8 +79,16 @@ func getLocation(fp string) string {
 		log.Fatal(err)
 	}
 
-	realLocation := getLatitudeAndLongitude(loc)
-	return realLocation
+	latitude := parseCoord(loc.latitude)
+	longitude := parseCoord(loc.longitude)
+
+	lat := convertCoord(latitude, "S")
+	lon := convertCoord(longitude, "W")
+
+	return types.Location{
+		Latitude:  lat,
+		Longitude: lon,
+	}
 }
 
 func (p *location) Walk(name exif.FieldName, tag *tiff.Tag) error {
@@ -90,6 +100,71 @@ func (p *location) Walk(name exif.FieldName, tag *tiff.Tag) error {
 	}
 	return nil
 }
-func getLatitudeAndLongitude(gpsInfo location) string {
-	return fmt.Sprintf("%s,%s", gpsInfo.latitude, gpsInfo.longitude)
+func convertCoord(coord []string, ref string) float64 {
+
+	degress := coord[0]
+	minutes := coord[1]
+	seconds := coord[2]
+
+	degress = strings.Split(degress, "/")[0]
+	minutes = strings.Split(minutes, "/")[0]
+	seconds = strings.Split(seconds, "/")[0]
+
+	// Convert degrees to float
+	degrees, err := strconv.ParseFloat(degress, 64)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Convert minutes to float
+	minutesFloat, err := strconv.ParseFloat(minutes, 64)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Convert seconds to float
+	secondsFloat, err := strconv.ParseFloat(seconds, 64)
+	if err != nil {
+		log.Fatal(err)
+	}
+	secondsDecimal := secondsFloat / 100000000
+
+	// Calculate decimal degrees
+	decimal := degrees + (minutesFloat / 60) + (secondsDecimal / 3600)
+
+	// If the reference indicates south or west, make the decimal negative
+	if ref == "S" || ref == "W" {
+		decimal = -decimal
+	}
+
+	return decimal
+}
+
+func parseCoord(coordStr string) []string {
+	// Dividir a string da coordenada em partes
+	parts := strings.Split(coordStr, ",")
+
+	d := parts[0]
+	m := parts[1]
+	s := parts[2]
+
+	// Extrair os valores de cada parte
+	dVal := extractValue(d)
+	mVal := extractValue(m)
+	sVal := extractValue(s)
+	if dVal != "" && mVal != "" && sVal != "" {
+		return []string{dVal, mVal, sVal}
+	}
+	return nil
+}
+
+func extractValue(str string) string {
+	start := strings.Index(str, `"`) + 1
+	end := strings.LastIndex(str, `"`)
+
+	if start == -1 || end == -1 {
+		return ""
+	}
+
+	return str[start:end]
 }

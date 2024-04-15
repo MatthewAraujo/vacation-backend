@@ -132,7 +132,7 @@ func (h *Handler) handleCreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusCreated, post)
+	utils.WriteJSON(w, http.StatusCreated, "Post created")
 	utils.Logger(http.StatusCreated, r)
 }
 

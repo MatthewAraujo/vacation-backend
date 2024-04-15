@@ -10,13 +10,25 @@ type Photo struct {
 	ID        uuid.UUID `json:"id"`
 	PostID    uuid.UUID `json:"post_id"`
 	PhotoURL  string    `json:"photo_url"`
-	Location  string    `json:"location"`
+	Location  Location  `json:"location"`
 	CreatedAt time.Time `json:"created_at"`
+}
+
+type LocationBD struct {
+	LocationID string
+	PhotoID    string
+	Latitude   string
+	Longitude  string
+}
+
+type Location struct {
+	Latitude  float64
+	Longitude float64
 }
 
 type PhotoInfo struct {
 	PhotoURL string
-	Location string
+	Location Location
 }
 
 type Post struct {

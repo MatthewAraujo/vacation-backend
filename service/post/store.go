@@ -2,7 +2,7 @@ package post
 
 import (
 	"database/sql"
-	"log"
+	"strconv"
 
 	"github.com/MatthewAraujo/vacation-backend/types"
 	"github.com/google/uuid"
@@ -17,7 +17,7 @@ func NewStore(db *sql.DB) *Store {
 }
 
 func (s *Store) GetPosts() ([]*types.Post, error) {
-	query := "SELECT p.*, ph.photoID, ph.postID,ph.url_photo, ph.location FROM posts p JOIN photos ph ON p.postID = ph.postID"
+	query := "SELECT p.*, ph.photoID, ph.postID, ph.url_photo, l.locationID, l.latitude, l.longitude FROM posts p JOIN photos ph ON p.postID = ph.postID JOIN locations l ON ph.photoID = l.photoID"
 	rows, err := s.db.Query(query)
 	if err != nil {
 		return nil, err
@@ -26,7 +26,7 @@ func (s *Store) GetPosts() ([]*types.Post, error) {
 	posts := []*types.Post{}
 
 	for rows.Next() {
-		p, err := scanRowIntoPostWithPhotos(rows)
+		p, err := scanRowIntoPostWithPhotosAndLocation(rows)
 		if err != nil {
 			return nil, err
 		}
@@ -37,9 +37,9 @@ func (s *Store) GetPosts() ([]*types.Post, error) {
 }
 
 func (s *Store) GetPostByID(postID string) (*types.Post, error) {
-	query := "SELECT p.*, ph.photoID, ph.postID, ph.url_photo, ph.location FROM posts p JOIN photos ph ON p.postID = ph.postID WHERE p.postID = ?"
+	query := "SELECT p.*, ph.photoID, ph.postID, ph.url_photo, l.locationID, l.latitude, l.longitude FROM posts p JOIN photos ph ON p.postID = ph.postID JOIN locations l ON ph.photoID = l.photoID WHERE p.postID = ?"
 	rows := s.db.QueryRow(query, postID)
-	p, err := scanOneRowIntoPostWithPhotos(rows)
+	p, err := scanOneRowIntoPostWithPhotosAndLocation(rows)
 	if err != nil {
 		return nil, err
 	}
@@ -73,36 +73,77 @@ func (s *Store) CreatePost(post types.CreatePostPayload) error {
 		return err
 	}
 
-	log.Println(pi)
-
 	photoURL := pi.PhotoURL
 	photoLocation := pi.Location
 
-	_, err = s.db.Exec("INSERT INTO photos(photoID,postID,url_photo,location) VALUES (?,?, ?, ?)", uuid.New(), postID, photoURL, photoLocation)
+	photoID := uuid.New()
+	_, err = s.db.Exec("INSERT INTO photos(photoID,postID,url_photo) VALUES (?,?, ?)", photoID, postID, photoURL)
 	if err != nil {
 		return err
 	}
+
+	_, err = s.db.Exec("INSERT INTO locations(locationID, photoID, latitude,longitude) VALUES (?,?,?,?)", uuid.New(), photoID, photoLocation.Latitude, photoLocation.Longitude)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func scanOneRowIntoPostWithPhotos(rows *sql.Row) (*types.Post, error) {
+func scanOneRowIntoPostWithPhotosAndLocation(rows *sql.Row) (*types.Post, error) {
 	p := new(types.Post)
 	ph := new(types.Photo)
-	err := rows.Scan(&p.ID, &p.UserID, &p.CreatedAt, &p.Description, &ph.ID, &ph.PostID, &ph.PhotoURL, &ph.Location)
-	if err != nil {
-		return nil, err
-	}
-	p.Photos = append(p.Photos, ph)
-	return p, nil
+	l := new(types.LocationBD)
 
-}
-func scanRowIntoPostWithPhotos(rows *sql.Rows) (*types.Post, error) {
-	p := new(types.Post)
-	ph := new(types.Photo)
-	err := rows.Scan(&p.ID, &p.UserID, &p.CreatedAt, &p.Description, &ph.ID, &ph.PostID, &ph.PhotoURL, &ph.Location)
+	err := rows.Scan(&p.ID, &p.UserID, &p.CreatedAt, &p.Description, &ph.ID, &ph.PostID, &ph.PhotoURL, &l.LocationID, &l.Latitude, &l.Longitude)
 	if err != nil {
 		return nil, err
 	}
 	p.Photos = append(p.Photos, ph)
+
+	latitude, err := strconv.ParseFloat(l.Latitude, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	longitude, err := strconv.ParseFloat(l.Longitude, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	p.Photos[0].Location = types.Location{
+		Latitude:  latitude,
+		Longitude: longitude,
+	}
+
+	return p, nil
+}
+
+func scanRowIntoPostWithPhotosAndLocation(rows *sql.Rows) (*types.Post, error) {
+	p := new(types.Post)
+	ph := new(types.Photo)
+	l := new(types.LocationBD)
+
+	err := rows.Scan(&p.ID, &p.UserID, &p.CreatedAt, &p.Description, &ph.ID, &ph.PostID, &ph.PhotoURL, &l.LocationID, &l.Latitude, &l.Longitude)
+	if err != nil {
+		return nil, err
+	}
+	p.Photos = append(p.Photos, ph)
+
+	latitude, err := strconv.ParseFloat(l.Latitude, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	longitude, err := strconv.ParseFloat(l.Longitude, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	p.Photos[0].Location = types.Location{
+		Latitude:  latitude,
+		Longitude: longitude,
+	}
+
 	return p, nil
 }
