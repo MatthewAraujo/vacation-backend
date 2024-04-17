@@ -8,6 +8,12 @@ import (
 	"github.com/joho/godotenv"
 )
 
+type CloudflareConfig struct {
+	BucketName      string
+	AccountID       string
+	AccessKeyID     string
+	AccessKeySecret string
+}
 type Config struct {
 	PublicHost             string
 	Port                   string
@@ -17,6 +23,7 @@ type Config struct {
 	DBName                 string
 	JWTExpirationInSeconds int64
 	JWTSecret              string
+	Cloudflare             CloudflareConfig
 }
 
 var Envs = initConfig()
@@ -33,7 +40,14 @@ func initConfig() Config {
 		DBName:                 getEnv("DB_NAME", "ecom"),
 		JWTSecret:              getEnv("JWT_SECRET", "not-that-secret"),
 		JWTExpirationInSeconds: getEnvAsInt("JWT_EXP", 3600*24*7),
+		Cloudflare: CloudflareConfig{
+			BucketName:      getEnv("CLOUDFLARE_BUCKETNAME", "my_bucket"),
+			AccountID:       getEnv("CLOUDFLARE_ACCOUNT_ID", "my_account_id"),
+			AccessKeyID:     getEnv("CLOUDFLARE_ACESS_KEY_ID", "my_access_key_id"),
+			AccessKeySecret: getEnv("CLOUDFLARE_ACESS_SECRET_ID", "my_access_key_secret"),
+		},
 	}
+
 }
 
 // Gets the env by key or fallbacks
