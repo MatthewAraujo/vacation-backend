@@ -19,6 +19,8 @@ type location struct {
 	longitude string
 }
 
+var r2url = "https://pub-573aa5de8ec347b1b4edc5be19999bfc.r2.dev/"
+
 func GetPhotoInfos() (types.PhotoInfo, error) {
 	folderPath, err := os.Getwd()
 	if err != nil {
@@ -68,7 +70,7 @@ func GetPhotoInfos() (types.PhotoInfo, error) {
 
 	log.Println("Arquivo enviado para o R2 com sucesso.")
 	location := getLocation(image)
-	photoUrl := "https://r2.cloudflarestorage.com/" + image
+	photoUrl := r2url + firstName
 	return types.PhotoInfo{
 		PhotoURL: photoUrl,
 		Location: location,
