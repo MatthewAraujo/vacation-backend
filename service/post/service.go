@@ -1,12 +1,14 @@
 package post
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
 	"strconv"
 	"strings"
 
+	"github.com/MatthewAraujo/vacation-backend/r2"
 	"github.com/MatthewAraujo/vacation-backend/types"
 	"github.com/rwcarlsen/goexif/exif"
 	"github.com/rwcarlsen/goexif/tiff"
@@ -49,10 +51,24 @@ func GetPhotoInfos() (types.PhotoInfo, error) {
 
 	// Obter o nome do primeiro arquivo
 	firstName := files[0].Name()
-	photoUrl := folderPath + "/" + firstName
 
-	location := getLocation(photoUrl)
+	s3Service, err := r2.NewR2Service()
+	if err != nil {
+		log.Fatal("Erro ao criar o serviço R2:", err)
+		return types.PhotoInfo{}, err
+	}
 
+	// Upload do arquivo para o R2
+	image := folderPath + "/" + firstName
+	err = s3Service.UploadFileToR2(context.TODO(), firstName, []byte(image))
+	if err != nil {
+		log.Fatal("Erro ao fazer upload do arquivo para o R2:", err)
+		return types.PhotoInfo{}, err
+	}
+
+	log.Println("Arquivo enviado para o R2 com sucesso.")
+	location := getLocation(image)
+	photoUrl := "https://r2.cloudflarestorage.com/" + image
 	return types.PhotoInfo{
 		PhotoURL: photoUrl,
 		Location: location,

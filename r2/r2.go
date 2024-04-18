@@ -1,10 +1,9 @@
-package main
+package r2
 
 import (
 	"bytes"
 	"context"
 	"fmt"
-	"log"
 
 	configs "github.com/MatthewAraujo/vacation-backend/config"
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -37,7 +36,7 @@ func NewR2Service() (*S3Service, error) {
 		config.WithRegion("apac"),
 	)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	// Amazon S3 service client access key and so on
@@ -49,6 +48,7 @@ func NewR2Service() (*S3Service, error) {
 	}, nil
 
 }
+
 func (s *S3Service) UploadFileToR2(ctx context.Context, key string, file []byte) error {
 	input := &s3.PutObjectInput{
 		Bucket:      aws.String(s.bucket), // Include the bucket name here
@@ -63,4 +63,5 @@ func (s *S3Service) UploadFileToR2(ctx context.Context, key string, file []byte)
 	}
 
 	return nil
+
 }

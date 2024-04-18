@@ -13,7 +13,9 @@ type Store struct {
 }
 
 func NewStore(db *sql.DB) *Store {
-	return &Store{db: db}
+	return &Store{
+		db: db,
+	}
 }
 
 func (s *Store) GetPosts() ([]*types.Post, error) {
