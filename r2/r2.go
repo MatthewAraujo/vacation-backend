@@ -1,9 +1,9 @@
 package r2
 
 import (
-	"bytes"
 	"context"
 	"fmt"
+	"io"
 
 	configs "github.com/MatthewAraujo/vacation-backend/config"
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -49,11 +49,11 @@ func NewR2Service() (*S3Service, error) {
 
 }
 
-func (s *S3Service) UploadFileToR2(ctx context.Context, key string, file []byte) error {
+func (s *S3Service) UploadFileToR2(ctx context.Context, key string, file io.Reader) error {
 	input := &s3.PutObjectInput{
 		Bucket:      aws.String(s.bucket), // Include the bucket name here
 		Key:         aws.String(key),
-		Body:        bytes.NewReader(file),
+		Body:        file,
 		ContentType: aws.String("image/jpeg"),
 	}
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -39,22 +40,23 @@ func GetPhotoInfos() (types.PhotoInfo, error) {
 	defer folder.Close()
 
 	// Ler o conteúdo da pasta
-	files, err := folder.Readdir(1) // Obter apenas um arquivo
+	file, err := folder.Readdir(1) // Obter apenas um arquivo
 	if err != nil {
 		fmt.Println("Erro ao ler conteúdo da pasta:", err)
 		return types.PhotoInfo{}, err
 	}
 
 	// Verificar se há arquivos na pasta
-	if len(files) == 0 {
+	if len(file) == 0 {
 		fmt.Println("Pasta vazia.")
 		return types.PhotoInfo{}, nil
 	}
 
 	// Obter o nome do primeiro arquivo
-	firstName := files[0].Name()
+	firstName := file[0].Name()
 
 	s3Service, err := r2.NewR2Service()
+
 	if err != nil {
 		log.Fatal("Erro ao criar o serviço R2:", err)
 		return types.PhotoInfo{}, err
@@ -62,7 +64,18 @@ func GetPhotoInfos() (types.PhotoInfo, error) {
 
 	// Upload do arquivo para o R2
 	image := folderPath + "/" + firstName
-	err = s3Service.UploadFileToR2(context.TODO(), firstName, []byte(image))
+
+	imagePath := filepath.Join(folderPath, firstName)
+
+	fileReader, err := os.Open(imagePath)
+	if err != nil {
+		log.Fatal("Erro ao abrir o arquivo:", err)
+		return types.PhotoInfo{}, err
+	}
+
+	defer fileReader.Close()
+
+	err = s3Service.UploadFileToR2(context.TODO(), firstName, fileReader)
 	if err != nil {
 		log.Fatal("Erro ao fazer upload do arquivo para o R2:", err)
 		return types.PhotoInfo{}, err
