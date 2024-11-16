@@ -44,6 +44,7 @@ func WriteError(w http.ResponseWriter, status int, err error) {
 	WriteJSON(w, status, map[string]string{"error": err.Error()})
 
 }
+
 func Logger(status int, r *http.Request) {
 	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
 	timestamp := time.Now().Format("02/01/2006 15:04:05")

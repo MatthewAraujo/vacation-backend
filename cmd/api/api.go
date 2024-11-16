@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/MatthewAraujo/vacation-backend/service/places"
 	"github.com/MatthewAraujo/vacation-backend/service/post"
 	"github.com/MatthewAraujo/vacation-backend/service/user"
 	"github.com/gorilla/mux"
@@ -34,6 +35,10 @@ func (s *APIServer) Run() error {
 	postStore := post.NewStore(s.db)
 	postHandler := post.NewHandler(postStore, userStore)
 	postHandler.RegisterRoutes(subrouter)
+
+	placesStore := places.NewStore(s.db)
+	placesHandler := places.NewHandler(placesStore)
+	placesHandler.RegisterRoutes(subrouter)
 
 	log.Println("Starting server on", s.addr)
 
