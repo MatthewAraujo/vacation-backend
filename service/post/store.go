@@ -126,10 +126,13 @@ func scanRowIntoPostWithPhotosAndLocation(rows *sql.Rows) (*types.Post, error) {
 	ph := new(types.Photo)
 	l := new(types.LocationBD)
 
-	err := rows.Scan(&p.ID, &p.UserID, &p.CreatedAt, &p.Description, &ph.ID, &ph.PostID, &ph.PhotoURL, &l.LocationID, &l.Latitude, &l.Longitude)
+	err := rows.Scan(&p.ID, &p.UserID, &p.CreatedAt, &p.Description, &p.Favorite,
+		&ph.ID, &ph.PostID, &ph.PhotoURL,
+		&l.LocationID, &l.Latitude, &l.Longitude)
 	if err != nil {
 		return nil, err
 	}
+
 	p.Photos = append(p.Photos, ph)
 
 	latitude, err := strconv.ParseFloat(l.Latitude, 64)

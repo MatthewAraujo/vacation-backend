@@ -24,6 +24,8 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.23.4 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.28.6 // indirect
 	github.com/aws/smithy-go v1.20.2 // indirect
+	github.com/cespare/xxhash/v2 v2.2.0 // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
@@ -32,6 +34,7 @@ require (
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
+	github.com/redis/go-redis/v9 v9.7.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	golang.org/x/net v0.21.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
@@ -45,6 +48,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.53.1
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/go-playground/validator/v10 v10.19.0
+	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/golang-migrate/migrate/v4 v4.17.0
 	github.com/joho/godotenv v1.5.1
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
