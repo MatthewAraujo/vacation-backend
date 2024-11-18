@@ -36,6 +36,7 @@ type Post struct {
 	UserID      uuid.UUID `json:"user_id"`
 	Description string    `json:"description"`
 	Photos      []*Photo  `json:"photos"`
+	Favorite    int       `json:"favorite"`
 	CreatedAt   time.Time `json:"created_at"`
 }
 type PostStore interface {
@@ -80,4 +81,8 @@ type RegisterUserPayload struct {
 type LoginUserPayload struct {
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required,min=3,max=100"`
+}
+
+type PlacesStore interface {
+	GetTopTenFamous() ([]*Post, error)
 }

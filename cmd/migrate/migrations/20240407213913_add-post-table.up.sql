@@ -3,5 +3,6 @@ CREATE TABLE IF NOT EXISTS posts(
     `userID` CHAR(36) NOT NULL,
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `description` TEXT NOT NULL,
+    `favorite` INT, 
     FOREIGN KEY (userID) REFERENCES users(userID)
 );

@@ -46,6 +46,13 @@ func main() {
 	v, d, _ := m.Version()
 	log.Printf("Version: %d, dirty: %v", v, d)
 
+	if d {
+		log.Println("Database is dirty. Forcing clean state...")
+		if err := m.Force(int(v)); err != nil {
+			log.Fatal("Failed to force clean state:", err)
+		}
+	}
+
 	cmd := os.Args[len(os.Args)-1]
 	if cmd == "up" {
 		if err := m.Up(); err != nil && err != migrate.ErrNoChange {
