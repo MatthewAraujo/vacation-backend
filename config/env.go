@@ -14,6 +14,12 @@ type CloudflareConfig struct {
 	AccessKeyID     string
 	AccessKeySecret string
 }
+type Redis struct {
+	Port     string
+	Address  string
+	Password string
+	Database int
+}
 type Config struct {
 	PublicHost             string
 	Port                   string
@@ -24,6 +30,7 @@ type Config struct {
 	JWTExpirationInSeconds int64
 	JWTSecret              string
 	Cloudflare             CloudflareConfig
+	Redis                  Redis
 }
 
 var Envs = initConfig()
@@ -45,6 +52,12 @@ func initConfig() Config {
 			AccountID:       getEnv("CLOUDFLARE_ACCOUNT_ID", "my_account_id"),
 			AccessKeyID:     getEnv("CLOUDFLARE_ACESS_KEY_ID", "my_access_key_id"),
 			AccessKeySecret: getEnv("CLOUDFLARE_ACESS_SECRET_ID", "my_access_key_secret"),
+		},
+		Redis: Redis{
+			Port:     getEnv("REDIS_PORT", "6379"),
+			Address:  getEnv("REDIS_ADDRESS", "localhost"),
+			Password: getEnv("REDIS_PASSWORD", ""),
+			Database: int(getEnvAsInt("REDIS_DATABASE", 0)),
 		},
 	}
 
