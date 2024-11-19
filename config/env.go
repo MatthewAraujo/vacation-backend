@@ -31,6 +31,7 @@ type Config struct {
 	JWTSecret              string
 	Cloudflare             CloudflareConfig
 	Redis                  Redis
+	XCSFToken              string
 }
 
 var Envs = initConfig()
@@ -59,6 +60,7 @@ func initConfig() Config {
 			Password: getEnv("REDIS_PASSWORD", ""),
 			Database: int(getEnvAsInt("REDIS_DATABASE", 0)),
 		},
+		XCSFToken: getEnv("XCSF_TOKEN", "AHSDUHASUDHASUDG"),
 	}
 
 }

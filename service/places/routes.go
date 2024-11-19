@@ -5,6 +5,7 @@ import (
 
 	"github.com/MatthewAraujo/vacation-backend/types"
 	"github.com/MatthewAraujo/vacation-backend/utils"
+	"github.com/MatthewAraujo/vacation-backend/xcsf"
 	"github.com/gorilla/mux"
 )
 
@@ -19,7 +20,7 @@ func NewHandler(store types.PlacesStore) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
-	router.HandleFunc("/places/top-ten-famous", h.handleGetTopTenFamous).Methods(http.MethodGet)
+	router.HandleFunc("/places/top-ten-famous", xcsf.WithCSF(h.handleGetTopTenFamous)).Methods(http.MethodGet)
 }
 
 func (h *Handler) handleGetTopTenFamous(w http.ResponseWriter, r *http.Request) {
@@ -28,4 +29,5 @@ func (h *Handler) handleGetTopTenFamous(w http.ResponseWriter, r *http.Request) 
 		utils.WriteError(w, http.StatusBadRequest, err)
 	}
 	utils.WriteJSON(w, http.StatusOK, places)
+	utils.Logger(http.StatusOK, r)
 }

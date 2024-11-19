@@ -8,6 +8,7 @@ import (
 	"github.com/MatthewAraujo/vacation-backend/service/auth"
 	"github.com/MatthewAraujo/vacation-backend/types"
 	"github.com/MatthewAraujo/vacation-backend/utils"
+	"github.com/MatthewAraujo/vacation-backend/xcsf"
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
 )
@@ -57,6 +58,15 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return
 	}
+
+	csfToken, err := xcsf.GenerateToken()
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("internal server error"))
+		return
+	}
+
+	XCSF := &http.Cookie{Name: "XCSF", Value: csfToken, HttpOnly: false}
+	http.SetCookie(w, XCSF)
 
 	utils.WriteJSON(w, http.StatusOK, map[string]string{"token": token})
 	utils.Logger(http.StatusOK, r)
