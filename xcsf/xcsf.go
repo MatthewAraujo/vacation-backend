@@ -13,7 +13,23 @@ import (
 
 	configs "github.com/MatthewAraujo/vacation-backend/config"
 	"github.com/MatthewAraujo/vacation-backend/utils"
+	"github.com/gorilla/mux"
 )
+
+func RegisterRoutes(router *mux.Router) {
+	router.HandleFunc("/xcsf", GenerateXCSFToken).Methods(http.MethodGet)
+}
+
+func GenerateXCSFToken(w http.ResponseWriter, r *http.Request) {
+	//do some logics to not allow anyone to generate this token
+	csfToken, err := GenerateToken()
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+	}
+
+	utils.WriteJSON(w, http.StatusCreated, map[string]string{"csftoken": csfToken})
+
+}
 
 var secretKey = []byte(configs.Envs.XCSFToken)
 
@@ -94,14 +110,8 @@ func WithCSF(handleFunc http.HandlerFunc) http.HandlerFunc {
 		}
 
 		if !valid {
-			csfToken, err := GenerateToken()
-			if err != nil {
-				utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("internal server error"))
-				return
-			}
-
-			XCSF := &http.Cookie{Name: "XCSF", Value: csfToken, HttpOnly: false}
-			http.SetCookie(w, XCSF)
+			utils.PermissionDenied(w)
+			return
 		}
 
 		handleFunc(w, r)

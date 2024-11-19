@@ -8,6 +8,7 @@ import (
 	"github.com/MatthewAraujo/vacation-backend/service/places"
 	"github.com/MatthewAraujo/vacation-backend/service/post"
 	"github.com/MatthewAraujo/vacation-backend/service/user"
+	"github.com/MatthewAraujo/vacation-backend/xcsf"
 	"github.com/gorilla/mux"
 	"github.com/redis/go-redis/v9"
 )
@@ -31,6 +32,7 @@ func (s *APIServer) Run() error {
 	// if the api changes in the future we can just change the version here, and the old version will still be available
 	subrouter := router.PathPrefix("/api/v1").Subrouter()
 
+	xcsf.RegisterRoutes(subrouter)
 	userStore := user.NewStore(s.db)
 	userHandler := user.NewHandler(userStore)
 	userHandler.RegisterRoutes(subrouter)
