@@ -34,6 +34,10 @@ func ParseJSON(r *http.Request, payload any) error {
 
 }
 
+func PermissionDenied(w http.ResponseWriter) {
+	WriteError(w, http.StatusForbidden, fmt.Errorf("permission denied"))
+}
+
 func WriteJSON(w http.ResponseWriter, status int, v any) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)

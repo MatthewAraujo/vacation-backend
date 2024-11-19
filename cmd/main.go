@@ -42,7 +42,8 @@ func main() {
 	redis := database.NewRedisStorage(redisCfg)
 
 	err = healthRedis(redis)
-	assert.Nil(err, "Redis is offline")
+	assert.NoError(err, "Redis is offline")
+	log.Printf("Connect to redis")
 
 	server := api.NewAPIServer(fmt.Sprintf(":%s", configs.Envs.Port), db, redis)
 	if err := server.Run(); err != nil {

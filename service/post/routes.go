@@ -8,6 +8,7 @@ import (
 
 	"github.com/MatthewAraujo/vacation-backend/types"
 	"github.com/MatthewAraujo/vacation-backend/utils"
+	"github.com/MatthewAraujo/vacation-backend/xcsf"
 	"github.com/go-playground/validator"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -28,10 +29,10 @@ func NewHandler(store types.PostStore, userStore types.UserStore) *Handler {
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/posts", h.handleGetPosts).Methods(http.MethodGet)
 	// router.HandleFunc("/posts", auth.WithJWTAuth(h.handleCreatePost, h.userStore)).Methods(http.MethodPost)
-	router.HandleFunc("/posts", h.handleCreatePost).Methods(http.MethodPost)
+	router.HandleFunc("/posts", xcsf.WithCSF(h.handleCreatePost)).Methods(http.MethodPost)
 	router.HandleFunc("/posts/{id}", h.handleGetPost).Methods(http.MethodGet)
-	router.HandleFunc("/posts/{id}", h.handleEditPost).Methods(http.MethodPatch)
-	router.HandleFunc("/posts/{id}", h.handleDeletePost).Methods(http.MethodDelete)
+	router.HandleFunc("/posts/{id}", xcsf.WithCSF(h.handleEditPost)).Methods(http.MethodPatch)
+	router.HandleFunc("/posts/{id}", xcsf.WithCSF(h.handleDeletePost)).Methods(http.MethodDelete)
 }
 
 func (h *Handler) handleDeletePost(w http.ResponseWriter, r *http.Request) {
