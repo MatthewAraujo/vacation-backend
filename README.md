@@ -13,6 +13,7 @@ Welcome to the Vacation Backend Application! This application allows users to sh
 
 ## TODO
 
+asdansduausdhaudhasd
 ### DB
 
 - [x] Create Docker DB
